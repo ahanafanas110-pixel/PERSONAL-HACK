@@ -27,95 +27,59 @@ export default function App() {
   // King emoji clicking tracker
   const [kingClicks, setKingClicks] = useState(0);
 
-  // Load initial passwords/keys or set default seeds
-  useEffect(() => {
-    const savedKeys = localStorage.getItem('sulaiman_active_keys');
-    if (savedKeys) {
-      setPasswords(JSON.parse(savedKeys));
-    } else {
-      // Default initial seeds for the 4 VIP packages
-      const initialSeeds: HackPassword[] = [
-        {
-          id: 'seed-1',
-          code: 'dj2026',
-          vipNum: 1,
-          validUntil: 'alltime',
-          maxUsers: -1,
-          usedCount: 0,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'seed-2',
-          code: 'raihanvip2',
-          vipNum: 2,
-          validUntil: 'alltime',
-          maxUsers: -1,
-          usedCount: 0,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'seed-3',
-          code: 'ST26',
-          vipNum: 3,
-          validUntil: 'alltime',
-          maxUsers: -1,
-          usedCount: 0,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'seed-4',
-          code: 'ST26',
-          vipNum: 4,
-          validUntil: 'alltime',
-          maxUsers: -1,
-          usedCount: 0,
-          createdAt: new Date().toISOString()
-        }
-      ];
-      setPasswords(initialSeeds);
-      localStorage.setItem('sulaiman_active_keys', JSON.stringify(initialSeeds));
+  // Load initial passwords/keys or set default seeds from backend
+  const fetchKeysFromServer = async () => {
+    try {
+      const res = await fetch('/api/passwords');
+      if (res.ok) {
+        const data = await res.json();
+        setPasswords(data);
+      }
+    } catch (e) {
+      console.error('Error syncing keys:', e);
     }
-  }, []);
-
-  // Sync state mutations to client cache
-  const saveKeysToStorage = (updatedList: HackPassword[]) => {
-    setPasswords(updatedList);
-    localStorage.setItem('sulaiman_active_keys', JSON.stringify(updatedList));
   };
 
+  useEffect(() => {
+    fetchKeysFromServer();
+    // Poll the server every 3 seconds to keep keys in sync across all devices
+    const interval = setInterval(fetchKeysFromServer, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Add a brand new password key via Admin control panel
-  const handleAddPassword = (
+  const handleAddPassword = async (
     vipNum: number, 
     code: string, 
     maxUsers: number, 
     validityHours: string | 'alltime'
   ) => {
-    let finalExpiry = 'alltime';
-    if (validityHours !== 'alltime') {
-      const hours = parseInt(validityHours) || 24;
-      const expiryDate = new Date();
-      expiryDate.setHours(expiryDate.getHours() + hours);
-      finalExpiry = expiryDate.toISOString();
+    try {
+      const res = await fetch('/api/passwords', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vipNum, code, maxUsers, validityHours })
+      });
+      if (res.ok) {
+        fetchKeysFromServer();
+      }
+    } catch (e) {
+      console.error('Error adding key:', e);
     }
-
-    const newKey: HackPassword = {
-      id: 'key-' + Date.now(),
-      code: code,
-      vipNum: vipNum,
-      validUntil: finalExpiry,
-      maxUsers: maxUsers,
-      usedCount: 0,
-      createdAt: new Date().toISOString()
-    };
-
-    const updated = [...passwords, newKey];
-    saveKeysToStorage(updated);
   };
 
   // Delete key completely
-  const handleDeletePassword = (id: string) => {
-    const updated = passwords.filter(pw => pw.id !== id);
-    saveKeysToStorage(updated);
+  const handleDeletePassword = async (id: string) => {
+    try {
+      const res = await fetch(`/api/passwords/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchKeysFromServer();
+      }
+    } catch (e) {
+      console.error('Error deleting key:', e);
+    }
   };
 
   // King Crown Emoji handler to trigger Admin panel (5 click mechanism requested)

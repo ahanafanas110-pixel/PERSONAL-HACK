@@ -40,9 +40,7 @@ export default function AdminPanel({ passwords, onAddPassword, onDeletePassword,
   const [validityMinutes, setValidityMinutes] = useState<number>(30);
 
   // Admin Authentication State
-  const [masterPassword, setMasterPassword] = useState(() => {
-    return localStorage.getItem('sulaiman_admin_password') || 'SADMAN018';
-  });
+  const [masterPassword, setMasterPassword] = useState('SADMAN018');
   const [newMasterPassword, setNewMasterPassword] = useState('');
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
@@ -54,6 +52,24 @@ export default function AdminPanel({ passwords, onAddPassword, onDeletePassword,
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [matrixCols, setMatrixCols] = useState<{ left: string; duration: string; delay: string; text: string }[]>([]);
+
+  // Load master password from server on mount
+  useEffect(() => {
+    const fetchAdminPassword = async () => {
+      try {
+        const res = await fetch('/api/admin/password');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.password) {
+            setMasterPassword(data.password);
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching admin password:', e);
+      }
+    };
+    fetchAdminPassword();
+  }, []);
 
   // Generate Matrix characters on mount
   useEffect(() => {
@@ -109,14 +125,26 @@ export default function AdminPanel({ passwords, onAddPassword, onDeletePassword,
     }
   };
 
-  const handleUpdateMasterPassword = (e: React.FormEvent) => {
+  const handleUpdateMasterPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMasterPassword.trim()) return;
-    localStorage.setItem('sulaiman_admin_password', newMasterPassword.trim());
-    setMasterPassword(newMasterPassword.trim());
-    setNewMasterPassword('');
-    setPasswordChangeSuccess('Password updated successfully!');
-    setTimeout(() => setPasswordChangeSuccess(''), 3000);
+    const newPwd = newMasterPassword.trim();
+    if (!newPwd) return;
+    
+    try {
+      const res = await fetch('/api/admin/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPwd })
+      });
+      if (res.ok) {
+        setMasterPassword(newPwd);
+        setNewMasterPassword('');
+        setPasswordChangeSuccess('Password updated successfully!');
+        setTimeout(() => setPasswordChangeSuccess(''), 3000);
+      }
+    } catch (e) {
+      console.error('Error updating admin password:', e);
+    }
   };
 
   const handleLogout = () => {

@@ -36,31 +36,24 @@ export default function Vip2Hack({ onBack, savedPassKey }: Vip2HackProps) {
     setIsUnlocked(!!savedPassKey);
   }, [savedPassKey]);
 
-  const handleLogin = () => {
-    const activeKeysStr = localStorage.getItem('sulaiman_active_keys') || '[]';
-    const activeKeys = JSON.parse(activeKeysStr) as Array<{
-      id: string; 
-      code: string; 
-      vipNum: number; 
-      validUntil: string; 
-      maxUsers: number; 
-      usedCount: number;
-    }>;
-    
-    const matchedKey = activeKeys.find(
-      k => k.code === password.trim() && 
-      k.vipNum === 2 && 
-      (k.maxUsers === -1 || k.usedCount < k.maxUsers) &&
-      (k.validUntil === 'alltime' || new Date(k.validUntil) > new Date())
-    );
-
-    if (matchedKey) {
-      matchedKey.usedCount += 1;
-      localStorage.setItem('sulaiman_active_keys', JSON.stringify(activeKeys));
-      setIsUnlocked(true);
-      setErrorMsg('');
-    } else {
-      setErrorMsg('❌ Invalid/Expired Key!');
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('/api/passwords/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: password.trim(), vipNum: 2 })
+      });
+      
+      if (res.ok) {
+        setIsUnlocked(true);
+        setErrorMsg('');
+      } else {
+        const data = await res.json();
+        setErrorMsg('❌ ' + (data.error || 'Invalid/Expired Key!'));
+        setTimeout(() => setErrorMsg(''), 3000);
+      }
+    } catch (e) {
+      setErrorMsg('❌ Connection Error!');
       setTimeout(() => setErrorMsg(''), 3000);
     }
   };
@@ -84,9 +77,18 @@ export default function Vip2Hack({ onBack, savedPassKey }: Vip2HackProps) {
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
+    const newX = e.clientX - dragStart.current.x;
+    const newY = e.clientY - dragStart.current.y;
+    
+    // Bounds to prevent widget from sliding completely off screen on mobiles
+    const minX = 0;
+    const maxX = Math.max(20, window.innerWidth - 165);
+    const minY = 0;
+    const maxY = Math.max(20, window.innerHeight - 200);
+
     setPosition({
-      x: e.clientX - dragStart.current.x,
-      y: e.clientY - dragStart.current.y
+      x: Math.max(minX, Math.min(newX, maxX)),
+      y: Math.max(minY, Math.min(newY, maxY))
     });
   };
 
