@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-orbitron: "Orbitron", sans-serif;
+  --font-audiowide: "Audiowide", sans-serif;
+  --font-share: "Share Tech Mono", monospace;
+  --font-poppins: "Poppins", sans-serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+body {
+  background-color: #020205;
+  color: #f3f4f6;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020205;
+}
+::-webkit-scrollbar-thumb {
+  background: #ea580c;
+  border-radius: 3px;
+  border: 1px solid #1e1b4b;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f97316;
+}
+
+/* Cybernetic animations & classes */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-8px) scale(1.015); }
+}
+
+@keyframes pulse-neon-cyan {
+  0%, 100% { box-shadow: 0 0 8px rgba(6, 182, 212, 0.2), inset 0 0 4px rgba(6, 182, 212, 0.1); }
+  50% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.55), inset 0 0 8px rgba(6, 182, 212, 0.25); }
+}
+
+@keyframes pulse-neon-purple {
+  0%, 100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.2), inset 0 0 4px rgba(168, 85, 247, 0.1); }
+  50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.55), inset 0 0 8px rgba(168, 85, 247, 0.25); }
+}
+
+@keyframes pulse-neon-yellow {
+  0%, 100% { box-shadow: 0 0 8px rgba(234, 179, 8, 0.2), inset 0 0 4px rgba(234, 179, 8, 0.1); }
+  50% { box-shadow: 0 0 22px rgba(234, 179, 8, 0.6), inset 0 0 8px rgba(234, 179, 8, 0.3); }
+}
+
+@keyframes pulse-neon-fire {
+  0%, 100% { box-shadow: 0 0 8px rgba(249, 115, 22, 0.25), inset 0 0 4px rgba(239, 68, 68, 0.1); border-color: rgba(249, 115, 22, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(249, 115, 22, 0.7), inset 0 0 10px rgba(239, 68, 68, 0.45); border-color: rgba(249, 115, 22, 0.85); }
+}
+
+@keyframes pulse-glow-text {
+  0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 2px rgba(249, 115, 22, 0.4)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.95)); }
+}
+
+@keyframes cyber-scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-cyber-pulse-cyan {
+  animation: pulse-neon-cyan 2.5s infinite ease-in-out;
+}
+
+.animate-cyber-pulse-purple {
+  animation: pulse-neon-purple 2.5s infinite ease-in-out;
+}
+
+.animate-cyber-pulse-yellow {
+  animation: pulse-neon-yellow 2.5s infinite ease-in-out;
+}
+
+.animate-cyber-pulse-fire {
+  animation: pulse-neon-fire 2s infinite ease-in-out;
+}
+
+.animate-float-slow {
+  animation: float-slow 5s infinite ease-in-out;
+}
+
+.animate-glow-text {
+  animation: pulse-glow-text 1.5s infinite ease-in-out;
+}
+
+@keyframes orbit-cw-slow {
+  0% { transform: rotate(0deg) translate(38px) rotate(0deg); }
+  100% { transform: rotate(360deg) translate(38px) rotate(-360deg); }
+}
+@keyframes orbit-ccw-fast {
+  0% { transform: rotate(360deg) translate(28px) rotate(-360deg); }
+  100% { transform: rotate(0deg) translate(28px) rotate(0deg); }
+}
+@keyframes orbit-cw-mid {
+  0% { transform: rotate(180deg) translate(33px) rotate(-180deg); }
+  100% { transform: rotate(540deg) translate(33px) rotate(-540deg); }
+}
+
+.animate-orbit-cw-slow {
+  animation: orbit-cw-slow 10s linear infinite;
+}
+.animate-orbit-ccw-fast {
+  animation: orbit-ccw-fast 6s linear infinite;
+}
+.animate-orbit-cw-mid {
+  animation: orbit-cw-mid 8s linear infinite;
+}
+
+.cyber-matrix-grid {
+  background-size: 20px 20px;
+  background-image: 
+    linear-gradient(to right, rgba(239, 68, 68, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(239, 68, 68, 0.015) 1px, transparent 1px);
+}
+
+.agun-fire-gradient {
+  background: linear-gradient(135deg, #7f1d1d 0%, #c2410c 50%, #ea580c 100%);
+}
+
+.scanline-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline-overlay::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 2000;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+
